@@ -1,4 +1,8 @@
 // Include gulp and plugins
+// import fsFileTree from 'fs-file-tree';
+const fsFileTree = require("fs-file-tree");
+const dirTree = require("directory-tree");
+
 const gulp = require('gulp');
 
 const del = require('del');
@@ -35,13 +39,13 @@ let html = {
 
 let images = {
     in: [source + 'assets/images/**/*'],
-    out: dest + 'images/'
+    out: dest + 'assets/images/'
 };
 
 let css = {
     in: [source + 'assets/sass/style.scss'],
     watch: ['assets/sass/**/*.scss'],
-    out: dest + 'css/',
+    out: dest + 'assets/css/',
     pluginCSS: {
         in: [
             source + 'node_modules/bootstrap/scss/bootstrap.scss',
@@ -50,7 +54,7 @@ let css = {
             source + 'node_modules/simplebar/dist/simplebar.min.css',
         ],
         watch: ['css/**/*.css'],
-        out: dest + 'css/'
+        out: dest + 'assets/css/'
     },
     sassOpts: {
         outputStyle: devBuild ? 'compressed' : 'compressed',
@@ -62,7 +66,7 @@ let css = {
 
 let fonts = {
     in: source + 'fonts/**/*',
-    out: dest + 'fonts/'
+    out: dest + 'assets/fonts/'
 };
 
 let js = {
@@ -78,13 +82,13 @@ let js = {
         source + 'assets/js/impress.js',
         source + 'assets/js/custom.js'
     ],
-    out: dest + 'js/'
+    out: dest + 'assets/js/'
 };
 
 let jsLibs = {
     in: source + 'assets/jslib/**/*',
     watch: 'assets/jslib/**/*',
-    out: dest + 'jslib/'
+    out: dest + 'assets/jslib/'
 };
 
 let syncOpts = {
@@ -101,27 +105,27 @@ let syncOpts = {
 
 // Clean tasks
 gulp.task('clean', cb => {
-    del([dest + '**/*'], cb());
+    del([dest], cb());
 });
 
 gulp.task('clean-images', cb => {
-    del([dest + 'images/**/*'], cb());
+    del([dest + 'assets/images/**/*'], cb());
 });
 
 gulp.task('clean-html', () => {
-    return del([dest + '**/*.html']);
+    return del([dest + 'assets/**/*.html']);
 });
 
 gulp.task('clean-css', cb => {
-    del([dest + 'css/**/*'], cb());
+    del([dest + 'assets/css/**/*'], cb());
 });
 
 gulp.task('clean-js', cb => {
-    del([dest + 'js/**/*'], cb());
+    del([dest + 'assets/js/**/*'], cb());
 });
 
 gulp.task('clean-jslib', cb => {
-    del([dest + 'jslib/**/*'], cb());
+    del([dest + 'assets/jslib/**/*'], cb());
 });
 
 // reload task
@@ -187,12 +191,29 @@ gulp.task('images', () => {
     );
 });
 
+// Generate files tree in directory
+gulp.task('generateFilesTree', cb => {
+    const fs = require('fs');
+    // console.log(fsFileTree.sync(source + 'assets/images', {camelCase: true}));
+    var data = dirTree(source + 'assets/images');
+    let createData = fs.appendFile(dest + 'assets/data.json', JSON.stringify(data), function(err) {
+        if(err) {
+            return console.log(err)
+        } else {
+            console.log("JSON created based on the files tree.")
+        }
+    }, cb());
+    // createData.write(data);
+    // console.log(data)
+
+});
+
 // copy fonts
 gulp.task('fonts', () => {
     return gulp
         .src(fonts.in)
-        .pipe($.newer(dest + 'fonts/'))
-        .pipe(gulp.dest(dest + 'fonts/'));
+        .pipe($.newer(dest + 'assets/fonts/'))
+        .pipe(gulp.dest(dest + 'assets/fonts/'));
 });
 
 // plugin css compilation
@@ -214,7 +235,7 @@ gulp.task(
             .pipe($.size({
                 title: 'CSS in '
             }))
-            .pipe($.newer(dest + 'css/'))
+            .pipe($.newer(dest + 'assets/css/'))
             // .pipe(cssFilter)
             .pipe(
                 $.rename(function (path) {
@@ -247,7 +268,7 @@ gulp.task(
             .pipe($.size({
                 title: 'CSS out '
             }))
-            .pipe(gulp.dest(dest + 'css/'))
+            .pipe(gulp.dest(dest + 'assets/css/'))
             .pipe(browserSync.stream({
                 match: '**/*.css'
             }))
@@ -293,7 +314,7 @@ gulp.task('js', () => {
             .pipe($.size({
                 title: 'JS in '
             }))
-            .pipe($.newer(dest + 'js/'))
+            .pipe($.newer(dest + 'assets/js/'))
             .pipe(jsFilter)
             .pipe($.babel({
                 presets: [
@@ -325,7 +346,7 @@ gulp.task('js', () => {
             .pipe($.size({
                 title: 'JS out '
             }))
-            .pipe(gulp.dest(dest + 'js/'))
+            .pipe(gulp.dest(dest + 'assets/js/'))
         );
     }
 });
@@ -401,6 +422,7 @@ gulp.task('jslib', function () {
     }
 });
 
+
 // browser sync
 gulp.task('serve', () => {
 
@@ -409,7 +431,7 @@ gulp.task('serve', () => {
             baseDir: dest,
             index: 'index.html'
         },
-        // files: [dest + 'assets/css/light-bootstrap-dashboard.css', dest + 'assets/js/custom.js'],
+        // files: [dest + 'assets/assets/css/light-bootstrap-dashboard.css', dest + 'assets/assets/js/custom.js'],
         open: false,
         // port: 3000,
         injectChanges: true,
@@ -424,7 +446,7 @@ gulp.task(
         // html changes
         gulp.watch(html.watch, gulp.series('html', 'reload'));
         // image changes
-        gulp.watch(images.in, gulp.series('images'));
+        gulp.watch(images.in, gulp.series('images', 'generateFilesTree'));
 
         // font changes
         gulp.watch(fonts.in, gulp.series('fonts'));
@@ -449,7 +471,7 @@ gulp.task(
 gulp.task(
     'default',
     gulp.parallel(
-        'html', 'css', 'sass', 'images', 'js', 'jslib',
+        'html', 'css', 'sass', 'images', 'generateFilesTree', 'js', 'jslib',
         gulp.series('watch')
     )
 );
