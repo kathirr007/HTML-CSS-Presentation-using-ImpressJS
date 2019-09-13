@@ -46,12 +46,12 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
     line-height: 1;
     font-family: 'Open Sans', sans-serif;
     background: rgb(240, 240, 240);
-    background: -moz-radial-gradient(center, ellipse cover, rgba(240, 240, 240, 1) 0%, rgba(190, 190, 190, 1) 67%);
+    background: -moz-radial-gradient(center, ellipse farthest-corner, rgba(240, 240, 240, 1) 0%, rgba(190, 190, 190, 1) 67%);
     background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(240, 240, 240, 1)), color-stop(67%, rgba(190, 190, 190, 1)));
-    background: -webkit-radial-gradient(center, ellipse cover, rgba(240, 240, 240, 1) 0%, rgba(190, 190, 190, 1) 67%);
-    background: -o-radial-gradient(center, ellipse cover, rgba(240, 240, 240, 1) 0%, rgba(190, 190, 190, 1) 67%);
-    background: -ms-radial-gradient(center, ellipse cover, rgba(240, 240, 240, 1) 0%, rgba(190, 190, 190, 1) 67%);
-    background: radial-gradient(center, ellipse cover, rgba(240, 240, 240, 1) 0%, rgba(190, 190, 190, 1) 67%);
+    background: -webkit-radial-gradient(center, ellipse farthest-corner, rgba(240, 240, 240, 1) 0%, rgba(190, 190, 190, 1) 67%);
+    background: -o-radial-gradient(center, ellipse farthest-corner, rgba(240, 240, 240, 1) 0%, rgba(190, 190, 190, 1) 67%);
+    background: -ms-radial-gradient(center, ellipse farthest-corner, rgba(240, 240, 240, 1) 0%, rgba(190, 190, 190, 1) 67%);
+    background: radial-gradient(center, ellipse farthest-corner, rgba(240, 240, 240, 1) 0%, rgba(190, 190, 190, 1) 67%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0f0f0', endColorstr='#bebebe',GradientType=1);
     -webkit-font-smoothing: antialiased;
   }
@@ -188,7 +188,7 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
     }
   }
 
-  #impressum {
+  #contactUs {
     width: 700px;
     height: 500px;
     padding: 0;
@@ -242,7 +242,7 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
     margin-left: 0;
   }
 
-  #viewover {
+  #overview {
     width: 700px;
     heigth: 500px;
     text-align: center;

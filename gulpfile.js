@@ -306,9 +306,8 @@ gulp.task('js', () => {
             .pipe($.uglify())
             .pipe(
                 $.order([
-                    'jquery-3.1.1.min.js',
+                    'jquery.min.js',
                     'bootstrap.bundle.min.js',
-                    'popper.min.js',
                     'slick.min.js',
                     'simplebar.min.js',
                     'jquery.bootstrap.wizard.js',
