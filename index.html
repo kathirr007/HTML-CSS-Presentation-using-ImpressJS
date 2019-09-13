@@ -326,7 +326,9 @@
                 success: function (res) {
                 console.log(res.children);
                 $.each(res.children, function (i, item) {
-                    if(item.name == 'squre'){
+                    if(item.name == 'icons' && item.type == 'directory'){
+                        return false
+                    } else if(item.name == 'squre' && item.type == 'directory'){
                         $.each(item.children, function(i, item){
                             $('#overview').append(`
                                 <div>${i}</div>
