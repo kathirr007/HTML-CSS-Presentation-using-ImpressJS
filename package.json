@@ -6,6 +6,12 @@
   "scripts": {
     "build": "gulp build"
   },
+  "ght": {
+      "encryption": true,
+      "method": "AES-256",
+      "url": "https://aesencryption.net",
+      "encrypted": "vrFUDA6EphtXbF/+wA8+6y6A3oHsOd4V9A611+dgBwCMr/zLNERbMG89g+Bqvafl"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com:kathirr007/HTML-CSS-Presentation-using-ImpressJS.git"
