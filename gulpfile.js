@@ -43,7 +43,7 @@ let images = {
 };
 
 let css = {
-    in: [source + 'assets/sass/style.scss'],
+    in: [source + 'assets/sass/styles.scss'],
     watch: ['assets/sass/**/*.scss'],
     out: dest + 'assets/css/',
     pluginCSS: {
@@ -52,6 +52,7 @@ let css = {
             source + 'node_modules/slick-carousel/slick/slick.css',
             source + 'node_modules/slick-carousel/slick/slick-theme.css',
             source + 'node_modules/simplebar/dist/simplebar.min.css',
+            source + 'assets/css/impress-demo.css',
         ],
         watch: ['css/**/*.css'],
         out: dest + 'assets/css/'
@@ -80,6 +81,7 @@ let js = {
         source + 'node_modules/slick-carousel/slick/slick.min.js',
         source + 'node_modules/simplebar/dist/simplebar.min.js',
         source + 'assets/js/impress.js',
+        // source + 'assets/js/exif.js',
         source + 'assets/js/custom.js'
     ],
     out: dest + 'assets/js/'
@@ -128,6 +130,10 @@ gulp.task('clean-jslib', cb => {
     del([dest + 'assets/jslib/**/*'], cb());
 });
 
+gulp.task('clean-data', cb => {
+    del([dest + 'assets/data.json'], cb());
+});
+
 // reload task
 gulp.task('reload', done => {
     browserSync.reload();
@@ -159,10 +165,35 @@ gulp.task('html', () => {
 });
 
 // manage images
-gulp.task('images', () => {
+gulp.task('images-resize', () => {
     var imageFilter2 = $.filter(['**/*.+(jpg|png|tiff|webp)'], {
         restore: true
     });
+    return (
+        gulp.src([images.in.toString(), '!./assets/images/icons/**', '!./assets/images/thumbnails/**'])
+        .pipe($.size({
+            title: 'images in '
+        }))
+        .pipe($.newer(source + 'assets/images/thumbnails'))
+        .pipe($.plumber())
+        .pipe($.imageResize({
+            width : 400,
+            height : 400,
+            cover : true,
+            upscale : false
+          }))
+        .pipe($.size({
+            title: 'images out '
+        }))
+        .pipe(gulp.dest(source + 'assets/images/thumbnails'))
+    );
+});
+
+gulp.task('images', gulp.series('images-resize', () => {
+    var imageFilter2 = $.filter(['**/*.+(jpg|png|tiff|webp)'], {
+        restore: true
+    });
+    var thumbImages = $.filter(['!./assets/images/thumbnails/**'], {restore: true});
     return (
         gulp
         .src(images.in)
@@ -170,6 +201,7 @@ gulp.task('images', () => {
             title: 'images in '
         }))
         .pipe($.newer(images.out))
+        .pipe(thumbImages)
         .pipe($.plumber())
         .pipe($.image({
             jpegRecompress: ['--strip', '--quality', 'medium', '--loops', 10, '--min', 40, '--max', 80],
@@ -177,6 +209,7 @@ gulp.task('images', () => {
             // guetzli: ['--quality', 84],
             quiet: true
         }))
+        .pipe(thumbImages.restore)
         // .pipe($.image({
         //     jpegRecompress: ['--strip', '--quality', 'medium', '--loops', 10, '--min', 40, '--max', 80],
         //     mozjpeg: ['-quality', 50, '-optimize', '-progressive'],
@@ -189,23 +222,21 @@ gulp.task('images', () => {
         }))
         .pipe(gulp.dest(images.out))
     );
-});
+}));
 
 // Generate files tree in directory
 gulp.task('generateFilesTree', cb => {
     const fs = require('fs');
-    // console.log(fsFileTree.sync(source + 'assets/images', {camelCase: true}));
-    var data = dirTree(source + 'assets/images');
-    let createData = fs.appendFile(dest + 'assets/data.json', JSON.stringify(data), function(err) {
-        if(err) {
-            return console.log(err)
-        } else {
-            console.log("JSON created based on the files tree.")
-        }
+    var data = dirTree(source + 'assets/images/');
+    del([dest + 'assets/data.json'], function(){
+        let createData = fs.appendFile(dest + 'assets/data.json', JSON.stringify(data), function(err) {
+            if(err) {
+                return console.log(err)
+            } else {
+                console.log("JSON created based on the files tree.")
+            }
+        });
     }, cb());
-    // createData.write(data);
-    // console.log(data)
-
 });
 
 // copy fonts
@@ -254,6 +285,7 @@ gulp.task(
                     'bootstrap-select.min.css',
                     'slick.css',
                     'slick-theme.css',
+                    'impress-demo.css',
                     'simplebar.min.css'
                 ])
             )
@@ -332,6 +364,7 @@ gulp.task('js', () => {
                     'slick.min.js',
                     'simplebar.min.js',
                     'jquery.bootstrap.wizard.js',
+                    // 'exif.js',
                     // 'bootstrap-history-tabs.js',
                     // 'bootstrap-tabs-history.js',
                     // 'jquery.stickytabs.js',
@@ -446,7 +479,7 @@ gulp.task(
         // html changes
         gulp.watch(html.watch, gulp.series('html', 'reload'));
         // image changes
-        gulp.watch(images.in, gulp.series('images', 'generateFilesTree'));
+        gulp.watch(images.in, gulp.series('images', 'generateFilesTree', 'html', 'reload'));
 
         // font changes
         gulp.watch(fonts.in, gulp.series('fonts'));
