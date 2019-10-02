@@ -508,3 +508,9 @@ gulp.task(
         gulp.series('watch')
     )
 );
+
+// build task
+gulp.task(
+    'build',
+    gulp.series('css', 'sass', 'images', 'js', 'jslib', 'generateFilesTree', 'html')
+);
